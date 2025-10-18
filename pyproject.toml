@@ -130,4 +130,4 @@ def syntax(filepath):
     for error in errors:
         click.echo(f"  {click.style(filepath, fg='yellow')}:{click.style(str(error.line), fg='cyan')}:{click.style(str(error.col), fg='cyan')} [{click.style(error.code, fg='red', bold=True)}] {error.message}")
 
-main = cli
+main = cli 
