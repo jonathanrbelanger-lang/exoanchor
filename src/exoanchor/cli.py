@@ -40,8 +40,16 @@ def cli():
 def demo():
     """Creates demo files to showcase exoanchor's features."""
     click.secho("--> Creating demo files...", fg="cyan")
+    
     demo_py_path = Path("demo.py")
     demo_reqs_path = Path("demo_requirements.txt")
+
+    # PREMORTEM MITIGATION #1: Prevent overwriting existing files.
+    if demo_py_path.exists() or demo_reqs_path.exists():
+        click.secho(f"Error: `{demo_py_path}` or `{demo_reqs_path}` already exists in this directory.", fg="red")
+        click.echo("Please remove them or run this command in an empty directory.")
+        return
+
     demo_py_path.write_text(DEMO_PY_CONTENT.strip())
     demo_reqs_path.write_text(DEMO_REQS_CONTENT.strip())
     
@@ -58,16 +66,20 @@ def demo():
 @click.option('--json', 'json_output', is_flag=True, help='Output the result as a JSON object.')
 def run(reqs, command, json_output):
     """Checks if your project survives a dependency upgrade."""
-    if not json_output:
-        click.secho("🛡️  exoanchor: Running dependency resilience check...", fg="cyan", bold=True)
-    
     try:
+        # The engine is now silent and returns a structured result object.
         result = run_analysis(Path(reqs), command)
+
         if json_output:
+            # If --json is passed, print the JSON and exit immediately.
             click.echo(result.to_json())
             return
 
+        # PREMORTEM MITIGATION #3: Clean, human-readable output.
+        # The CLI is now solely responsible for presentation.
+        click.secho("🛡️  exoanchor: Dependency resilience check complete.", fg="cyan", bold=True)
         click.echo("\n" + "="*50)
+        
         if result.status == "SUCCESS":
             click.secho("✅ SUCCESS: Your project survived the 'LATEST STABLE' scenario!", fg="green", bold=True)
         else:
@@ -79,6 +91,7 @@ def run(reqs, command, json_output):
         click.echo("="*50)
 
     except (FileNotFoundError, Exception) as e:
+        # PREMORTEM MITIGATION #2: Ensure errors are also formatted as JSON if requested.
         if json_output:
             error_result = RunResult(status="ERROR", log_output=str(e), inputs={"command": command, "reqs": reqs})
             click.echo(error_result.to_json())
@@ -101,4 +114,5 @@ def syntax(filepath):
     for error in errors:
         click.echo(f"  {click.style(filepath, fg='yellow')}:{click.style(str(error.line), fg='cyan')}:{click.style(str(error.col), fg='cyan')} [{click.style(error.code, fg='red', bold=True)}] {error.message}")
 
+# The entry point for pyproject.toml, pointing to the main command group.
 main = cli
