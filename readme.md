@@ -2,11 +2,13 @@
 
 **exoanchor: Your anchor in the stormy seas of dependency updates.**
 
-A zero-configuration CLI tool that tells you if your Python project will break *before* you upgrade your dependencies.
+A zero-configuration CLI tool that tells you if your Python project will break *before* you upgrade your dependencies. It also includes a rapid, focused syntax checker to catch common typos before you commit.
 
 ## Why?
 
-Ever run `pip install -U ...` and watched your project explode? `exoanchor` automates the process of finding out if an upgrade is safe by testing your code against the latest stable versions of your dependencies in a secure, isolated sandbox.
+Ever run `pip install -U ...` and watched your project explode? Or pushed a commit from your phone only to find a simple syntax error broke the build?
+
+`exoanchor` automates the process of finding out if an upgrade is safe and provides a quick, "in-the-moment" sanity check for your code, reducing frustration and saving you time.
 
 ## Core Principles
 
@@ -20,76 +22,79 @@ Ever run `pip install -U ...` and watched your project explode? `exoanchor` auto
 
 You can run `exoanchor` with the confidence that it will not permanently alter your system in any way.
 
-## Getting Started (v0.1.0)
+## Getting Started (v0.2.0)
 
-**STATUS:** ✅ **Ready for Launch!** The core logic is complete and functional for Linux, macOS, and Windows (via WSL).
-
-Since the project isn't on the Python Package Index (PyPI) yet, you can't `pip install` it. Instead, you can install and run it directly from this source code.
+See what `exoanchor` can do in under 60 seconds.
 
 **Prerequisites:** You need Python 3.8+ and Git installed.
 
-### 1. Clone the Repository
+### 1. Install `exoanchor`
 
-First, download the project to your computer using `git`.
+Clone the repository and install the tool in an isolated environment.
 
 ```bash
+# Clone the project
 git clone https://github.com/YourUsername/exoanchor.git
 cd exoanchor
+
+# Create and activate a virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Install exoanchor in editable mode
+pip install -e .
 ```
 *(Note: Replace `YourUsername` with your actual GitHub username!)*
 
-### 2. Set Up a Virtual Environment
+### 2. Create the Demo Files
 
-Create an isolated Python environment to install `exoanchor` without affecting your system.
-
-```bash
-# Create the virtual environment
-python3 -m venv .venv
-
-# Activate it (you must do this every time you open a new terminal)
-source .venv/bin/activate
-```
-
-### 3. Install exoanchor in Editable Mode
-
-This command installs `exoanchor` and makes the `exoanchor` command available in your terminal. The `-e` flag means any changes you make to the code are immediately reflected.
+Run the built-in `demo` command. This will create sample files in your current directory and show you the next commands to run.
 
 ```bash
-pip install -e .
+exoanchor demo
 ```
 
-### 4. Run a Demo Test
+### 3. Run the Checks
 
-Let's prove it works! We'll create a quick test case right here in the project folder.
+Now, run the commands provided by the demo to see `exoanchor` in action.
 
-**Create a `requirements.txt` file with an old version of NumPy:**
+**Test the syntax checker (this will pass cleanly):**
 ```bash
-echo "numpy==1.20.0" > requirements.txt
+exoanchor syntax demo.py
+```
+**Expected Output:**
+```
+✅ No syntax errors found!
 ```
 
-**Create a `test_script.py` that uses a feature removed in newer NumPy versions:**
+**Test the resilience checker (this will fail, as intended, proving its utility):**
 ```bash
-echo 'import numpy as np; print("Testing numpy version:", np.__version__); assert np.bool(True) == True' > test_script.py
+exoanchor run --reqs demo_requirements.txt --command "python3 demo.py"
 ```
-
-**Now, run `exoanchor` against this test case:**
-```bash
-exoanchor --command "python3 test_script.py"
-```
-
-### 5. See the Result!
-
-`exoanchor` will find the latest version of NumPy, install it in a temporary sandbox, and run your script. Because the old feature is removed, the script will fail, and `exoanchor` will correctly report it:
-
+**Expected Output:**
 ```
 💥 FAILED: Your project broke in the 'LATEST STABLE' scenario.
 ```
 
-You've just proven that an upgrade would break your code, without ever changing your actual project files!
+You've just used both core features of `exoanchor` to verify a file's syntax and discover a future dependency breakage.
+
+## Commands Overview
+
+*   `exoanchor run`: The core resilience checker. It creates a sandbox with the latest dependencies and runs your test command inside it.
+*   `exoanchor syntax`: A rapid, focused static analysis tool to check a single file for common, blocking syntax errors.
+*   `exoanchor demo`: A helper command that creates `demo.py` and `demo_requirements.txt` to let you quickly test the tool.
+
+## Advanced Usage: Automation with JSON
+
+The `run` command supports a `--json` flag to output results in a machine-readable format, perfect for CI/CD pipelines and other scripts.
+
+```bash
+exoanchor run --command "pytest" --json > results.json
+```
 
 ## Known Limitations
 
-*   Does not yet handle complex `requirements.txt` files (e.g., git URLs, local paths).
+*   The `run` command does not yet handle complex `requirements.txt` files (e.g., git URLs, local paths).
 
 ## Contributing
 
