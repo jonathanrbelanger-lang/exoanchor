@@ -1,0 +1,17 @@
+Metadata-Version: 2.4
+Name: exoanchor
+Version: 0.2.0
+Summary: A CLI tool to test if your Python project will break before you upgrade dependencies.
+Author-email: Jonathan R Belanger <jonathan.r.belanger@gmail.com>
+License: MIT
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: click
+Requires-Dist: requests
+Requires-Dist: packaging
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: ruff; extra == "dev"
+Requires-Dist: black; extra == "dev"
+Dynamic: license-file

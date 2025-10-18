@@ -1,0 +1,8 @@
+click
+requests
+packaging
+
+[dev]
+pytest
+ruff
+black
