@@ -47,7 +47,6 @@ class SyntaxChecker:
         # Proceed to Pass 2 only if no fatal lexical errors were found
         if not self.errors:
             try:
-                # The ast module is happy to parse the original bytes
                 tree = ast.parse(self.source_bytes, filename=self.file_path)
                 ast_errors = self._run_ast_checks(tree)
                 self.errors.extend(ast_errors)
@@ -63,11 +62,10 @@ class SyntaxChecker:
         errors = []
         bracket_stack = []
         try:
-            # THE FIX: We must decode the bytes into a string before tokenizing.
-            # The tokenize module expects a callable that returns strings (str), not bytes.
-            source_as_string = self.source_bytes.decode('utf-8', errors='replace')
-            
-            tokens = tokenize.generate_tokens(BytesIO(source_as_string.encode('utf-8')).readline)
+            # THE FIX: Use `tokenize.tokenize`, the modern, byte-based tokenizer.
+            # This function is designed to work directly with a byte stream,
+            # which is exactly what we get from reading the file in 'rb' mode.
+            tokens = tokenize.tokenize(BytesIO(self.source_bytes).readline)
             for token in tokens:
                 if token.type == tokenize.OP:
                     if token.string in '([{':
