@@ -4,7 +4,9 @@ from .sandbox import SandboxRunner
 from .models import RunResult
 
 def find_requirements_file(start_path: Path) -> Path | None:
-    """Searches for 'requirements.txt' in the current directory or parents."""
+    """
+    Searches for 'requirements.txt' in the current directory or parents.
+    """
     if start_path.is_file() and start_path.exists():
         return start_path
     
